@@ -40,7 +40,7 @@ statusLabel.Font = Enum.Font.Gotham
 statusLabel.Text = "Đang kiểm tra..."
 statusLabel.Parent = frame
 
-local lastDoughMastery = nil -- lưu mastery Dough lần cuối
+local lastDoughMastery = nil
 
 local function getDoughMastery()
     local main = playerGui:FindFirstChild("Main")
@@ -48,7 +48,6 @@ local function getDoughMastery()
     local skills = main:FindFirstChild("Skills")
     if not skills then return nil end
 
-    -- Check title có phải DOUGH không
     local title = skills:FindFirstChild("Title")
     local level = skills:FindFirstChild("Level")
     if not title or not level then return nil end
@@ -56,45 +55,50 @@ local function getDoughMastery()
     if title.Text:upper() == "DOUGH" then
         local num = level.Text:match("(%d+)")
         if num then
-            lastDoughMastery = tonumber(num) -- lưu lại
+            lastDoughMastery = tonumber(num)
             return lastDoughMastery
         end
     end
-
-    -- Không phải DOUGH → trả về giá trị cũ đã lưu
     return lastDoughMastery
 end
 
-local written = false
+local done = false
 
-while true do
-    local mastery = getDoughMastery()
+-- Chạy mãi cho đến khi ghi file thành công
+repeat
+    local ok, err = pcall(function()
+        local mastery = getDoughMastery()
 
-    if mastery then
-        masteryLabel.Text = "🍩 Dough: " .. mastery .. " / " .. MASTERY_REQUIRED
+        if mastery then
+            masteryLabel.Text = "🍩 Dough: " .. mastery .. " / " .. MASTERY_REQUIRED
 
-        if mastery >= MASTERY_REQUIRED then
-            masteryLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
-            statusLabel.Text = "✅ Đủ rồi! Đổi acc..."
-            statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+            if mastery >= MASTERY_REQUIRED then
+                masteryLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
+                statusLabel.Text = "✅ Đủ rồi! Đổi acc..."
+                statusLabel.TextColor3 = Color3.fromRGB(0, 255, 100)
 
-            if not written then
                 writefile(localPlayer.Name .. ".txt", "Completed-" .. localPlayer.Name .. ".json")
-                written = true
                 print("[Done] Đã ghi: " .. localPlayer.Name .. ".txt")
+                done = true
+            else
+                local need = MASTERY_REQUIRED - mastery
+                masteryLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+                statusLabel.Text = "⏳ Cần thêm " .. need .. " Mas"
+                statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
             end
         else
-            local need = MASTERY_REQUIRED - mastery
-            masteryLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
-            statusLabel.Text = "⏳ Cần thêm " .. need .. " Mas"
-            statusLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
+            masteryLabel.Text = "🍩 Dough Mastery: N/A"
+            masteryLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+            statusLabel.Text = "❌ Chưa equip Dough"
+            statusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
         end
-    else
-        masteryLabel.Text = "🍩 Dough Mastery: N/A"
-        masteryLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
-        statusLabel.Text = "❌ Chưa equip Dough"
-        statusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
+    end)
+
+    if not ok then
+        warn("[Lỗi] " .. tostring(err))
     end
 
     task.wait(5)
-end
+until done
+
+print("[Script] Hoàn thành, dừng lại!")
