@@ -1,7 +1,7 @@
 task.spawn(function()
     local Players = game:GetService("Players")
     local localPlayer = Players.LocalPlayer
-    local playerGui = localPlayer:WaitForChild("PlayerGui", 30)
+    local CoreGui = game:GetService("CoreGui")
 
     local MASTERY_REQUIRED = 300
 
@@ -11,8 +11,8 @@ task.spawn(function()
     screenGui.Name = "MasteryChecker"
     screenGui.ResetOnSpawn = false
     screenGui.DisplayOrder = 999
-    screenGui.AlwaysOnTop = true
-    screenGui.Parent = playerGui
+    screenGui.IgnoreGuiInset = true
+    screenGui.Parent = CoreGui -- gắn vào CoreGui luôn trên cùng
 
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 220, 0, 80)
@@ -43,6 +43,7 @@ task.spawn(function()
     statusLabel.Text = "Đang kiểm tra..."
     statusLabel.Parent = frame
 
+    local playerGui = localPlayer:WaitForChild("PlayerGui", 30)
     local lastDoughMastery = nil
 
     local function getDoughMastery()
@@ -99,5 +100,6 @@ task.spawn(function()
         task.wait(5)
     until done
 
+    screenGui:Destroy() -- xóa GUI khi xong
     print("[Script] Hoàn thành!")
 end)
