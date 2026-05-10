@@ -10,7 +10,7 @@ task.spawn(function()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "MasteryChecker"
     screenGui.ResetOnSpawn = false
-    screenGui.DisplayOrder = 999
+    screenGui.DisplayOrder = 99999999999999999999999999999999999999999999999999999999999999999
     screenGui.AlwaysOnTop = true
     screenGui.Parent = playerGui
 
